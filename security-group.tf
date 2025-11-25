@@ -27,6 +27,6 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   tags = {
-    Name = "ec2-default-vpc-sg_git"
+    Name = "ec2-default-vpc-sg"
   }
 }
