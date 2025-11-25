@@ -27,6 +27,6 @@ resource "aws_security_group" "ec2_sg1" {
   }
 
   tags = {
-    Name = "ec2-default-vpc-sg"
+    Name = "ec2-default-vpc-sg1"
   }
 }
