@@ -1,4 +1,4 @@
-resource "aws_security_group" "ec2_sg1" {
+resource "aws_security_group" "ec2_sg" {
   name        = "ec2-default-vpc-sg"
   description = "Allow SSH and HTTP"
   vpc_id      = data.aws_vpc.default.id
@@ -27,6 +27,6 @@ resource "aws_security_group" "ec2_sg1" {
   }
 
   tags = {
-    Name = "ec2-default-vpc-sg1"
+    Name = "ec2-default-vpc-sg_git"
   }
 }
