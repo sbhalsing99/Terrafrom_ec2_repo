@@ -10,12 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      # 1. Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      # 3. Configure AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -23,14 +26,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Terraform Init
-        run: terraform init
+      #############################################################
+      #                STEP 1: DEPLOY remote-infra                #
+      # (Creates: S3 bucket + DynamoDB lock table BEFORE backend) #
+      #############################################################
 
-      - name: Terraform Validate
+      - name: Terraform Init (remote-infra)
+        working-directory: ./remote-infra
+        run: terraform init -upgrade
+
+      - name: Terraform Validate (remote-infra)
+        working-directory: ./remote-infra
         run: terraform validate
 
-      - name: Terraform Plan
+      - name: Terraform Plan (remote-infra)
+        working-directory: ./remote-infra
+        run: terraform plan
+
+      - name: Terraform Apply (remote-infra)
+        working-directory: ./remote-infra
+        run: terraform apply -auto-approve
+
+      #############################################################
+      #             STEP 2: DEPLOY MAIN TERRAFORM FOLDER          #
+      #   (EC2 + VPC + whatever infra using S3 backend)           #
+      #############################################################
+
+      - name: Terraform Init (main folder)
+        run: terraform init -upgrade
+
+      - name: Terraform Validate (main folder)
+        run: terraform validate
+
+      - name: Terraform Plan (main folder)
         run: terraform plan -var-file="terraform.tfvars"
 
-      - name: Terraform Apply
+      - name: Terraform Apply (main folder)
+        if: github.ref == 'refs/heads/main'
         run: terraform apply -var-file="terraform.tfvars" -auto-approve
